@@ -30,7 +30,7 @@ const ESPREE_CONFIG = {
 
 describe("NodeEventGenerator", () => {
     EventGeneratorTester.testEventGeneratorInterface(
-        new NodeEventGenerator(createEmitter())
+        new NodeEventGenerator(createEmitter(), "type")
     );
 
     describe("entering a single AST node", () => {
@@ -40,7 +40,7 @@ describe("NodeEventGenerator", () => {
             emitter = Object.create(createEmitter(), { emit: { value: sinon.spy() } });
 
             ["Foo", "Bar", "Foo > Bar", "Foo:exit"].forEach(selector => emitter.on(selector, () => {}));
-            generator = new NodeEventGenerator(emitter);
+            generator = new NodeEventGenerator(emitter, "type");
         });
 
         it("should generate events for entering AST node.", () => {
@@ -89,7 +89,7 @@ describe("NodeEventGenerator", () => {
             });
 
             possibleQueries.forEach(query => emitter.on(query, () => {}));
-            const generator = new NodeEventGenerator(emitter);
+            const generator = new NodeEventGenerator(emitter, "type");
 
             Traverser.traverse(ast, {
                 enter(node, parent) {
@@ -314,7 +314,7 @@ describe("NodeEventGenerator", () => {
 
             emitter.on("Foo >", () => {});
             assert.throws(
-                () => new NodeEventGenerator(emitter),
+                () => new NodeEventGenerator(emitter, "type"),
                 /Syntax error in selector "Foo >" at position 5: Expected " ", "!", .*/u
             );
         });

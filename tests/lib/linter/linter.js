@@ -123,7 +123,7 @@ describe("Linter", () => {
             const spy = sinon.spy();
 
             linter.defineRule("checker", () => ({ newListener: spy }));
-            linter.verify("foo", { rules: { checker: "error", "no-undef": "error" } });
+            linter.verify("foo", { rules: { checker: "error", def: "error" } });
             assert(spy.notCalled);
         });
 
@@ -977,6 +977,21 @@ describe("Linter", () => {
     });
 
     describe("when config has parser", () => {
+
+        it("should parse and process non-js file when parser is defined", () => {
+            const config = { rules: { "test-rule": "error" }, parser: "graphql" };
+            const result = [];
+
+            linter.defineParser("graphql", testParsers.nonJSParser);
+            linter.defineRule("test-rule", () => ({
+                "*"(node) {
+                    result.push(node.kind);
+                }
+            }));
+            linter.verify("0", config, filename);
+
+            assert.strictEqual(result.length, 18);
+        });
 
         it("should pass parser as parserPath to all rules when provided on config", () => {
 
@@ -5254,7 +5269,7 @@ var a = "test2";
 
             linter.defineRule("collect-node-types", () => ({
                 "*"(node) {
-                    nodes.push(node.type);
+                    nodes.push(node.kind);
                 }
             }));
 
